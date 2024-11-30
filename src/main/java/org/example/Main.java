@@ -1,146 +1,62 @@
 package org.example;
+//Задание1-2
+class Sotrudnik {
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+    private String fio;
+    private String dolzhnost;
+    private String email;
+    private String telefon;
+    private String zarplata;
+    private String age;
+
+    public Sotrudnik(String fio, String dolzhnost, String email, String telefon, String zarplata, String age) {
+        this.fio = fio;
+        this.dolzhnost = dolzhnost;
+        this.email = email;
+        this.telefon = telefon;
+        this.zarplata = zarplata;
+        this.age = age;
+    }
+
+    public void displayInfo() {
+        System.out.println("ФИО: " + fio);
+        System.out.println("Должность: " + dolzhnost);
+        System.out.println("Email: " + email);
+        System.out.println("Телефон: " + telefon);
+        System.out.println("Зарплата: " + zarplata);
+        System.out.println("Возраст: " + age);
+    }
+
+    @Override
+    public String toString() {
+        return "Sotrudnik{" +
+                "ФИО='" + fio + '\'' +
+                ", Должность='" + dolzhnost + '\'' +
+                ", Email='" + email + '\'' +
+                ", Телефон='" + telefon + '\'' +
+                ", Зарплата='" + zarplata + '\'' +
+                ", Возраст='" + age + '\'' +
+                '}';
+    }
+}
 
 public class Main {
+    private static Sotrudnik sotrudnik;
+
     public static void main(String[] args) {
-//Первое задание
-        printThreeWords();
-    }
 
-    public static void printThreeWords() {
-        System.out.println("Orange");
-        System.out.println("Banana");
-        System.out.println("Apple");
+        Sotrudnik[] persArray = new Sotrudnik[5];
 
-//Второе задание
-        checkSumSign();
-    }
+        persArray[0] = new Sotrudnik("Ivanov Ivan", "Engineer", "ivivan@mail.ru", "89024567834", "50000", "35");
+        persArray[1] = new Sotrudnik("Petrov Petr", "Manager", "petrov@mail.ru", "89024567835", "60000", "40");
+        persArray[2] = new Sotrudnik("Sidorova Anna", "Designer", "sidorova@mail.ru", "89024567836", "45000", "30");
+        persArray[3] = new Sotrudnik("Kuznetsov Sergey", "QA", "kuznetsov@mail.ru", "89024567837", "55000", "28");
+        persArray[4] = new Sotrudnik("Smirnova Maria", "DevOps", "smirnova@mail.ru", "89024567838", "70000", "32");
 
-    public static void checkSumSign() {
-        int a = 5;
-        int b = -3;
-
-        int sum = a + b;
-
-        if (sum >= 0) {
-            System.out.println("Сумма положительная");
-        } else {
-            System.out.println("Сумма отрицательная");
+        for (Sotrudnik person : persArray) {
+            System.out.println(person);
         }
-//Третье задание
-        printColor(50);
+        sotrudnik.displayInfo();
     }
-
-    public static void printColor(int value) {
-        if (value <= 0) {
-            System.out.println("Красный");
-        } else if (value > 0 && value <= 100) {
-            System.out.println("Желтый");
-        } else {
-            System.out.println("Зеленый");
-        }
-
-//Четвертое задание
-    }
-
-    public static void compareNumbers() {
-        int a = 10;
-        int b = 5;
-        if (a >= b) {
-            System.out.println("a >= b");
-        } else {
-            System.out.println("a < b");
-        }
-        //Шестое задание
-        checkNumber(5);
-        checkNumber(-3);
-        checkNumber(0);
-    }
-    public static void checkNumber(int number) {
-        if (number >= 0) {
-            System.out.println("Положительное число");
-        } else {
-            System.out.println("Отрицательное число");
-        }
-        System.out.println(isNegative(-10));  // true
-        System.out.println(isNegative(15));    // false
-        System.out.println(isNegative(-1));    // true
-        System.out.println(isNegative(0));     // false
-        System.out.println(isNegative(42));    // false
-        System.out.println(isNegative(-100));  // true
-
-        //Седьмое задание
-        System.out.println(isNegative(-5)); // true
-        System.out.println(isNegative(0));   // false
-        System.out.println(isNegative(10));  // false
-    }
-
-    public static boolean isNegative(int number) {
-        return number < 0;
-    }
-    //Восьмое задание
-
-    public static void printMultipleTimes(Object input, int times) {
-        if (input instanceof String) {
-            String message = (String) input;
-            for (int i = 0; i < times; i++) {
-                System.out.println(message);
-            }
-        } else if (input instanceof Number) {
-            int count = ((Number) input).intValue();
-            for (int i = 0; i < count; i++) {
-                System.out.println(count);
-            }
-        } else {
-            System.out.println("Unsupported type");
-        }
-        printMultipleTimes("Hello, World!", 3);
-    }
-
-    //Девятое задание
-    public static boolean isLeapYear(int year) {
-
-        if (year % 4 == 0) {
-            if (year % 100 == 0) {
-                return year % 400 == 0;
-            }
-            return true;
-        }
-        return false;
-    }
-    //14-е задание
-    public static class ArrayInitializer {
-
-        public void main(String[] args) {
-            // Пример использования метода
-            int len = 5;
-            int initialValue = 3;
-            int[] array = createArray(len, initialValue);
-
-            // Выводим созданный массив
-            System.out.print("Созданный массив: ");
-            printArray(array);
-        }
-
-        // Метод для создания массива
-        public static int[] createArray(int len, int initialValue) {
-            int[] array = new int[len]; // Создаем массив заданной длины
-            for (int i = 0; i < len; i++) {
-                array[i] = initialValue; // Заполняем массив значением initialValue
-            }
-            return array; // Возвращаем созданный массив
-        }
-
-        // Метод для вывода массива
-        public static void printArray(int[] array) {
-            for (int num : array) {
-                System.out.print(num + " ");
-            }
-            System.out.println(); // Переход на новую строку
-        }
-    }
-
-
 }
+

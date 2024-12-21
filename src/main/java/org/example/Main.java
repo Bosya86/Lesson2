@@ -1,35 +1,39 @@
 package org.example;
 
-import org.example.shapes.Circle;
-import org.example.shapes.Rectangle;
-import org.example.shapes.Triangle;
-import org.example.shapes.ColoredShape;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        Circle circle = new Circle(5.0);
-        circle.setFillColor("Red");
-        circle.setBorderColor("Blue");
+// Задание 1
+        String[] words = {"яблоко", "банан", "груша", "апельсин", "яблоко", "виноград", "банан", "персик", "слива", "арбуз",
+                "дыня", "лимон", "мандарин", "манго", "абрикос"};
 
-        Rectangle rectangle = new Rectangle(6.0, 8.0);
-        rectangle.setFillColor("Green");
-        rectangle.setBorderColor("Yellow");
+        Set<String> uniqueWords = new HashSet<>(Arrays.asList(words));
+        System.out.println("Уникальные слова: " + uniqueWords);
 
-        Triangle triangle = new Triangle(3.0, 4.0, 5.0);
-        triangle.setFillColor("Orange");
-        triangle.setBorderColor("Purple");
+        Map<String, Integer> wordCounts = new HashMap<>();
+        for (String word : words) {
+            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
+        }
 
-        printShapeDetails(circle);
-        printShapeDetails(rectangle);
-        printShapeDetails(triangle);
-    }
+        System.out.println("\nКоличество вхождений каждого слова:");
+        for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+// Задание 2
+        PhoneBook book = new PhoneBook();
 
-    private static void printShapeDetails(ColoredShape shape) {
-        System.out.println("Фигура: " + shape.getClass().getSimpleName());
-        System.out.println("Периметр: " + shape.calculatePerimeter());
-        System.out.println("Площадь: " + shape.calculateArea());
-        System.out.println("Цвет заливки: " + shape.getFillColor());
-        System.out.println("Цвет границы: " + shape.getBorderColor());
-        System.out.println();
+        book.add("Иванов", "+7 123 456 7890");
+        book.add("Петров", "+7 987 654 3210");
+        book.add("Иванов", "+7 111 222 3333");
+
+        List<String> ivanovNumbers = book.get("Иванов");
+        System.out.println(ivanovNumbers);
+
+        List<String> sidorovNumbers = book.get("Сидоров");
+        System.out.println(sidorovNumbers);
+
+
     }
 }
+

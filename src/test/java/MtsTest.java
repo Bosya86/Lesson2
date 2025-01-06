@@ -1,11 +1,7 @@
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,9 +9,10 @@ import pages.HomePage;
 import pages.PaymentSystemsPage;
 import pages.ReplenishmentPage;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.time.Duration;
 
 public class MtsTest {
 
@@ -56,65 +53,68 @@ public class MtsTest {
     }
 
     @Test
-    public void fillFieldsAndCheckContinueButton() {
-        HomePage homePage = new HomePage(driver);
-        homePage.agreeCookies();
+    public void verifyPaymentFormElements() {
+        try {
+            HomePage homePage = new HomePage(driver);
+            homePage.agreeCookies();
 
-        ReplenishmentPage replenishmentPage = homePage.openReplenishmentPage();
-        replenishmentPage.setAmount("200");
-        replenishmentPage.setPhoneNumber("297777777");
-        replenishmentPage.clickContinueButton();
+            ReplenishmentPage replenishmentPage = homePage.openReplenishmentPage();
+            replenishmentPage.setAmount("200");
+            replenishmentPage.setPhoneNumber("297777777");
+            replenishmentPage.clickContinueButton();
 
-        WebElement continueButton = driver.findElement(By.cssSelector("button.button__default[type='submit']"));
-        continueButton.click();
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", continueButton);
-
-
-        WebDriverWait wait = new WebDriverWait(driver, 30);
-        WebElement bepaidIframe = wait.until(ExpectedConditions.elementToBeClickable(By.className("bepaid-iframe")));
-        driver.switchTo().frame(bepaidIframe);
-
-
-
-        boolean isFrameLoaded = driver.findElement(By.cssSelector(".bepaid-iframe")).isDisplayed();
-        if (isFrameLoaded) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebElement bepaidIframe = wait.until(ExpectedConditions.elementToBeClickable(By.className("bepaid-iframe")));
             driver.switchTo().frame(bepaidIframe);
-            WebElement costElement = driver.findElement(By.cssSelector(".app-wrapper__content"));
-            String costText = costElement.getText();
+
+            WebElement costElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.pay-description__cost span")));
+            String costText = costElement.getText().trim();
+            System.out.println("Полученная цена: " + costText);
             assertEquals("200.00 BYN", costText);
-        } else {
-            System.out.println("Фрейм не загружен.");
+
+            WebElement descriptionElement = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("div.pay-description__text > span")
+                    )
+            );
+            String descriptionText = descriptionElement.getText().trim();
+            System.out.println("Описание платежа: " + descriptionText);
+            assertEquals("Оплата: Услуги связи Номер:375297777777", descriptionText);
+
+
+            WebElement cardNumberLabel = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("div.ng-tns-c46-1 ng-untouched ng-pristine ng-invalid > label.ng-tns-c46-1.ng-star-inserted")
+                    )
+            );
+            String cardNumberText = cardNumberLabel.getText().trim();
+            System.out.println("Номер карты: " + cardNumberText);
+            assertEquals("Номер карты", cardNumberLabel);
+
+            WebElement expirationDateLabel = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(By.cssSelector("label.ng-tns-c46-4.ng-star-inserted"))
+            );
+            String expirationDateText = expirationDateLabel.getText().trim();
+            System.out.println("Срок действия: " + expirationDateText);
+            assertEquals("Срок действия", expirationDateText);
+
+            String cvcLabel = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[contains(text(), 'CVC')]"))).getText();
+            assertEquals("CVC", cvcLabel);
+
+            String holderNameLabel = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[contains(text(), 'Имя держателя (как на карте)')]"))).getText();
+            assertEquals("Имя держателя (как на карте)", holderNameLabel);
+
+            String payButtonText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("colored disabled"))).getAttribute("innerText");
+            assertEquals("Оплатить 200.00 BYN", payButtonText);
+
+            System.out.println("Все элементы проверены успешно!");
+
+            driver.switchTo().defaultContent();
+
+        } catch (AssertionError | TimeoutException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
         }
-
-        String serviceText = driver.findElement(By.xpath("//div[contains(text(), 'Оплата: Услуги связи')]"))
-                .getText();
-        assertEquals("Оплата: Услуги связи", serviceText);
-
-        String numberText = driver.findElement(By.xpath("//label[contains(text(), 'Номер:375297777777')]"))
-                .getText();
-        assertEquals("Номер:375297777777", numberText);
-
-        String cardNumberLabel = driver.findElement(By.xpath("//label[contains(text(), 'Номер карты')]"))
-                .getText();
-        assertEquals("Номер карты", cardNumberLabel);
-
-        String expirationDateLabel = driver.findElement(By.xpath("//label[contains(text(), 'Срок действия')]"))
-                .getText();
-        assertEquals("Срок действия", expirationDateLabel);
-
-        String cvcLabel = driver.findElement(By.xpath("//label[contains(text(), 'CVC')]")).getText();
-        assertEquals("CVC", cvcLabel);
-
-        String holderNameLabel = driver.findElement(By.xpath("//label[contains(text(), 'Имя держателя (как на карте)')]"))
-                .getText();
-        assertEquals("Имя держателя (как на карте)", holderNameLabel);
-
-        String payButtonText = driver.findElement(By.className("colored disabled")).getAttribute("innerText");
-        assertEquals("Оплатить 200.00 BYN", payButtonText);
-
-        System.out.println("Все элементы проверены успешно!");
-        // Закрытие браузера
-        driver.quit();
     }
 
     @Test

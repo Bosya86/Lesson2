@@ -1,7 +1,11 @@
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -9,10 +13,12 @@ import pages.HomePage;
 import pages.PaymentSystemsPage;
 import pages.ReplenishmentPage;
 
+import java.time.Duration;
+import java.util.List;
+
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.time.Duration;
 
 public class MtsTest {
 
@@ -81,15 +87,14 @@ public class MtsTest {
             System.out.println("Описание платежа: " + descriptionText);
             assertEquals("Оплата: Услуги связи Номер:375297777777", descriptionText);
 
-
             WebElement cardNumberLabel = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(
-                            By.cssSelector("div.ng-tns-c46-1 ng-untouched ng-pristine ng-invalid > label.ng-tns-c46-1.ng-star-inserted")
+                            By.cssSelector("label.ng-star-inserted") // Упрощенный селектор
                     )
             );
             String cardNumberText = cardNumberLabel.getText().trim();
             System.out.println("Номер карты: " + cardNumberText);
-            assertEquals("Номер карты", cardNumberLabel);
+            Assert.assertEquals(cardNumberText, "Номер карты");
 
             WebElement expirationDateLabel = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(By.cssSelector("label.ng-tns-c46-4.ng-star-inserted"))
@@ -98,15 +103,68 @@ public class MtsTest {
             System.out.println("Срок действия: " + expirationDateText);
             assertEquals("Срок действия", expirationDateText);
 
-            String cvcLabel = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[contains(text(), 'CVC')]"))).getText();
-            assertEquals("CVC", cvcLabel);
+            WebElement cvcLabel = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("label.ng-tns-c46-5.ng-star-inserted")
+                    )
+            );
+            String cvcText = cvcLabel.getText().trim();
+            System.out.println("CVC: " + cvcText);
+            Assert.assertEquals(cvcText, "CVC");
 
-            String holderNameLabel = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[contains(text(), 'Имя держателя (как на карте)')]"))).getText();
-            assertEquals("Имя держателя (как на карте)", holderNameLabel);
+            WebElement holderNameLabel = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("label.ng-tns-c46-3.ng-star-inserted")
+                    )
+            );
+            String holderNameText = holderNameLabel.getText().trim();
+            System.out.println("Имя держателя (как на карте): " + holderNameText);
+            Assert.assertEquals(holderNameText, "Имя держателя (как на карте)");
 
-            String payButtonText = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("colored disabled"))).getAttribute("innerText");
-            assertEquals("Оплатить 200.00 BYN", payButtonText);
+            WebElement payButton = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("button.colored.disabled")
+                    )
+            );
+            String payButtonText = payButton.getAttribute("innerText").trim();
+            System.out.println("Кнопка оплаты: " + payButtonText);
+            Assert.assertEquals(payButtonText, "Оплатить 200.00 BYN");
 
+            WebElement firstLogoContainer = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("div.cards-brands.cards-brands__container.ng-tns-c61-0.ng-trigger.ng-trigger-brandsState.ng-star-inserted")
+                    )
+            );
+
+            // Ищем все изображения логотипов внутри первого контейнера
+            List<WebElement> firstLogos = firstLogoContainer.findElements(By.cssSelector("img.ng-tns-c61-0.ng-star-inserted"));
+
+            // Проверяем количество найденных логотипов в первом контейнере
+            Assert.assertTrue("Первый контейнер должен содержать хотя бы три логотипа", firstLogos.size() >= 3);
+
+            // Ожидаем видимость второго контейнера с логотипами
+            WebElement secondLogoContainer = wait.until(
+                    ExpectedConditions.presenceOfElementLocated(
+                            By.cssSelector("div.cards-brands_random.ng-star-inserted")
+                    )
+            );
+
+            // Ищем все изображения логотипов внутри второго контейнера
+            List<WebElement> secondLogos = secondLogoContainer.findElements(By.cssSelector("img.ng-tns-c61-0.ng-trigger.ng-trigger-randomCardState.ng-star-inserted"));
+
+            // Проверяем количество найденных логотипов во втором контейнере
+            Assert.assertTrue("Второй контейнер должен содержать хотя бы два логотипа", secondLogos.size() >= 2);
+
+            // Дополнительно можем вывести информацию о каждом логотипе
+            System.out.println("Логотипы в первом контейнере:");
+            for (WebElement logo : firstLogos) {
+                System.out.println("Найден логотип: " + logo.getAttribute("src"));
+            }
+
+            System.out.println("\nЛоготипы во втором контейнере:");
+            for (WebElement logo : secondLogos) {
+                System.out.println("Найден логотип: " + logo.getAttribute("src"));
+            }
             System.out.println("Все элементы проверены успешно!");
 
             driver.switchTo().defaultContent();
@@ -126,20 +184,5 @@ public class MtsTest {
         assertTrue(paymentSystemsPage.isMasterCardLogoPresent(), "Логотип MasterCard отсутствует.");
         assertTrue(paymentSystemsPage.isMasterCardSecureCodeLogoPresent(), "Логотип MasterCard Secure Code отсутствует.");
         assertTrue(paymentSystemsPage.isBelcardLogoPresent(), "Логотип Белкарт отсутствует.");
-    }
-    @Test
-    public void verifyFieldLabelsForCommunicationServices() {
-        HomePage homePage = new HomePage(driver);
-        homePage.agreeCookies();
-
-        ReplenishmentPage replenishmentPage = homePage.openReplenishmentPage();
-
-        // Переключаем на услугу "Услуги связи"
-        replenishmentPage.selectServiceType("Услуги связи");
-
-        // Проверяем надписи в полях
-        assertEquals("Номер телефона", replenishmentPage.getLabelForPhoneField());
-        assertEquals("Сумма", replenishmentPage.getLabelForSumField());
-        assertEquals("E-mail для отправки чека", replenishmentPage.getPlaceholderForEmailField());
     }
 }

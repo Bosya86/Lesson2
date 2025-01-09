@@ -25,7 +25,9 @@ public class MtsTest {
 
     @BeforeEach
     public void setup() {
-        WebDriverManager.chromedriver().setup(); // Автоматическая загрузка драйвера
+        String projectPath = new String();
+        System.setProperty("webdriver.chrome.driver", projectPath);
+        WebDriverManager.chromedriver().clearDriverCache().setup(); // Автоматическая загрузка драйвера
         driver = new ChromeDriver();
         wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 

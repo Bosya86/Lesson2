@@ -12,8 +12,8 @@
         <aspectj.version>1.9.21</aspectj.version>
         <junit.jupiter.version>5.9.3</junit.jupiter.version>
         <logback.version>1.2.12</logback.version>
-        <selenium.version>4.8.1</selenium.version>
-        <webdrivermanager.version>5.3.3</webdrivermanager.version>
+        <selenium.version>4.11.0</selenium.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
     </properties>
 
     <dependencyManagement>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.8.0</version> <!-- Укажите нужную версию -->
+            <version>5.9.2</version> <!-- Укажите нужную версию -->
         </dependency>
 
 

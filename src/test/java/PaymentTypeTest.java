@@ -1,3 +1,4 @@
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +25,9 @@ class PaymentTypeTest {
 
     @BeforeEach
     void setup() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
+        String projectPath = new String();
+        System.setProperty("webdriver.chrome.driver", projectPath);
+        WebDriverManager.chromedriver().clearDriverCache().setup();
         driver = new ChromeDriver();
         driver.get("https://www.mts.by/");
         driver.manage().window().maximize();

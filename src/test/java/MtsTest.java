@@ -1,4 +1,4 @@
-import org.junit.Assert;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,25 +16,27 @@ import pages.ReplenishmentPage;
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MtsTest {
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     @BeforeEach
     public void setup() {
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
+        WebDriverManager.chromedriver().setup(); // Автоматическая загрузка драйвера
         driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+
         driver.get("https://www.mts.by/");
-        driver.manage().window().maximize();
     }
 
     @AfterEach
     public void tearDown() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
     @Test
@@ -69,7 +71,7 @@ public class MtsTest {
             replenishmentPage.setPhoneNumber("297777777");
             replenishmentPage.clickContinueButton();
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
             WebElement bepaidIframe = wait.until(ExpectedConditions.elementToBeClickable(By.className("bepaid-iframe")));
             driver.switchTo().frame(bepaidIframe);
 
@@ -94,7 +96,7 @@ public class MtsTest {
             );
             String cardNumberText = cardNumberLabel.getText().trim();
             System.out.println("Номер карты: " + cardNumberText);
-            Assert.assertEquals(cardNumberText, "Номер карты");
+            assertEquals("Номер карты", cardNumberText);
 
             WebElement expirationDateLabel = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(By.cssSelector("label.ng-tns-c46-4.ng-star-inserted"))
@@ -110,7 +112,7 @@ public class MtsTest {
             );
             String cvcText = cvcLabel.getText().trim();
             System.out.println("CVC: " + cvcText);
-            Assert.assertEquals(cvcText, "CVC");
+            assertEquals("CVC", cvcText);
 
             WebElement holderNameLabel = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(
@@ -119,7 +121,7 @@ public class MtsTest {
             );
             String holderNameText = holderNameLabel.getText().trim();
             System.out.println("Имя держателя (как на карте): " + holderNameText);
-            Assert.assertEquals(holderNameText, "Имя держателя (как на карте)");
+            assertEquals("Имя держателя (как на карте)", holderNameText);
 
             WebElement payButton = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(
@@ -128,7 +130,7 @@ public class MtsTest {
             );
             String payButtonText = payButton.getAttribute("innerText").trim();
             System.out.println("Кнопка оплаты: " + payButtonText);
-            Assert.assertEquals(payButtonText, "Оплатить 200.00 BYN");
+            assertEquals("Оплатить 200.00 BYN", payButtonText);
 
             WebElement firstLogoContainer = wait.until(
                     ExpectedConditions.visibilityOfElementLocated(
@@ -140,7 +142,7 @@ public class MtsTest {
             List<WebElement> firstLogos = firstLogoContainer.findElements(By.cssSelector("img.ng-tns-c61-0.ng-star-inserted"));
 
             // Проверяем количество найденных логотипов в первом контейнере
-            Assert.assertTrue("Первый контейнер должен содержать хотя бы три логотипа", firstLogos.size() >= 3);
+            assertTrue(firstLogos.size() >= 3, "Первый контейнер должен содержать хотя бы три логотипа");
 
             // Ожидаем видимость второго контейнера с логотипами
             WebElement secondLogoContainer = wait.until(
@@ -153,7 +155,7 @@ public class MtsTest {
             List<WebElement> secondLogos = secondLogoContainer.findElements(By.cssSelector("img.ng-tns-c61-0.ng-trigger.ng-trigger-randomCardState.ng-star-inserted"));
 
             // Проверяем количество найденных логотипов во втором контейнере
-            Assert.assertTrue("Второй контейнер должен содержать хотя бы два логотипа", secondLogos.size() >= 2);
+            assertTrue(secondLogos.size() >= 2, "Второй контейнер должен содержать хотя бы два логотипа");
 
             // Дополнительно можем вывести информацию о каждом логотипе
             System.out.println("Логотипы в первом контейнере:");
